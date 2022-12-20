@@ -5,7 +5,7 @@ import routes from "../routes/UsersRoutes";
 class Server {
   constructor() {
     this.app = express();
-    this.port = process.env.APP_PORT;
+    this.port = process.env.APP_PORT || 3000;
     this.middlewares();
     this.routes();
   }
