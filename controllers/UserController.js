@@ -1,28 +1,28 @@
+import { Password } from "../models/Password";
 import { User } from "../models/UserModel";
-import bcrypt from "bcrypt";
 
-export const getUsers = (req, res) => {
-  const { name, username, edad = 99 } = req.query;
+export const getUsers = async (req, res) => {
+  const { limit = 10, offset = 0 } = req.query;
+
+  const usersPromise = User.find()
+    .where({ state: true })
+    .limit(limit)
+    .skip(offset);
+  const totalUsersPromise = User.count().where({ state: true });
+
+  const [users, total] = await Promise.all([usersPromise, totalUsersPromise]);
+
   res.status(200).json({
-    message: "Get users.",
-    name,
-    username,
-    edad,
+    users,
+    total,
   });
 };
 
 export const createUser = async (req, res) => {
-
   const { name, email, password, role } = req.body;
   const user = new User({ name, email, password, role });
 
-  const userDb = await User.findOne({ email });
-  if (userDb)
-    return res.status(400).json({
-      message: "Email already in use.",
-    });
-
-  user.password = bcrypt.hashSync(password, bcrypt.genSaltSync());
+  user.password = new Password().generate(password);
   await user.save();
 
   res.status(201).json({
@@ -31,16 +31,25 @@ export const createUser = async (req, res) => {
   });
 };
 
-export const updateUser = (req, res) => {
+export const updateUser = async (req, res) => {
   const { id } = req.params;
+  const { password, google, email, ...rest } = req.body;
+
+  if (password) rest.password = new Password().generate(password);
+
+  const user = await User.findByIdAndUpdate(id, rest);
+
   res.status(200).json({
     message: "Update user.",
-    id,
+    user,
   });
 };
 
-export const deleteUser = (req, res) => {
+export const deleteUser = async (req, res) => {
+  const { id } = req.params;
+  await User.findByIdAndUpdate(id, { state: false });
+
   res.status(200).json({
-    message: "Delete user.",
+    message: "User deleted.",
   });
 };

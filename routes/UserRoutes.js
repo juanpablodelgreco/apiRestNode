@@ -6,7 +6,10 @@ import {
   getUsers,
   updateUser,
 } from "../controllers/UserController";
+import { emailExists } from "../middlewares/ValidateEmail";
+import { roleExists } from "../middlewares/ValidateRole";
 import { validateFields } from "../middlewares/ValidateFields";
+import { userExists } from "../middlewares/ValidateUser";
 
 const router = Router();
 
@@ -20,12 +23,22 @@ router.post(
     check("password", "Password must have more than 5 letters.").isLength({
       min: 6,
     }),
-    check("role", "Invalid role").isIn(["admin", "user"]),
+    check("email").custom(emailExists),
+    check("role").custom(roleExists),
     validateFields,
   ],
   createUser,
 );
-router.put("/users/:id", updateUser);
-router.delete("/users", deleteUser);
+router.put(
+  "/users/:id",
+  [
+    check("id", "Incorrect ID").isMongoId(),
+    validateFields,
+    check("id").custom(userExists),
+    check("role").custom(roleExists),
+  ],
+  updateUser,
+);
+router.delete("/users/:id", [check("id").custom(userExists), validateFields], deleteUser);
 
 export default router;

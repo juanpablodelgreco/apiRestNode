@@ -1,6 +1,7 @@
 import { model, Schema } from "mongoose";
+import { RoleEnum } from "../enums/RoleEnum";
 
-const userSchema = Schema({
+const UserSchema = Schema({
   name: {
     type: String,
     required: [true, "Name is mandatory."],
@@ -20,7 +21,7 @@ const userSchema = Schema({
   role: {
     type: String,
     required: true,
-    enum: ["admin", "user"],
+    enum: [RoleEnum],
   },
   state: {
     type: Boolean,
@@ -32,5 +33,12 @@ const userSchema = Schema({
   },
 });
 
-const User = model("user", userSchema);
+// Para sacar la password de la respuesta
+UserSchema.methods.toJSON = function() {
+  const { __v, password, ...user } = this.toObject();
+
+  return user;
+}
+
+const User = model("user", UserSchema);
 export { User };
