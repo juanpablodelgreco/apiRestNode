@@ -41,7 +41,7 @@ export const updateUser = async (req, res) => {
 
   res.status(200).json({
     message: "Update user.",
-    user,
+    user: req.user,
   });
 };
 
@@ -51,5 +51,6 @@ export const deleteUser = async (req, res) => {
 
   res.status(200).json({
     message: "User deleted.",
+    user: req.user
   });
 };

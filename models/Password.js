@@ -5,7 +5,7 @@ export class Password {
     return bcrypt.hashSync(password, bcrypt.genSaltSync());
   }
 
-  verify(password) {
-    return bcrypt.compareSync(password, bcrypt.genSaltSync());
+  verify(password, passwordDb) {
+    return bcrypt.compareSync(password, passwordDb);
   }
 }

@@ -35,7 +35,8 @@ const UserSchema = Schema({
 
 // Para sacar la password de la respuesta
 UserSchema.methods.toJSON = function() {
-  const { __v, password, ...user } = this.toObject();
+  const { __v, password, _id, ...user } = this.toObject();
+  user.uuid = _id;
 
   return user;
 }

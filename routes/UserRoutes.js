@@ -6,16 +6,19 @@ import {
   getUsers,
   updateUser,
 } from "../controllers/UserController";
+import { RoleEnum } from "../enums/RoleEnum";
 import { emailExists } from "../middlewares/ValidateEmail";
-import { roleExists } from "../middlewares/ValidateRole";
+import { validateJwt } from "../middlewares/ValidateJwt";
+import { roleExists, hasRole } from "../middlewares/ValidateRole";
 import { validateFields } from "../middlewares/ValidateFields";
 import { userExists } from "../middlewares/ValidateUser";
 
 const router = Router();
+const basePath = "/users";
 
-router.get("/users", getUsers);
+router.get(`${basePath}`, getUsers);
 router.post(
-  "/users",
+  `${basePath}`,
   [
     check("email", "Invalid email.").isEmail(),
     check("name", "Name is mandatory.").not().isEmpty(),
@@ -30,7 +33,7 @@ router.post(
   createUser,
 );
 router.put(
-  "/users/:id",
+  `${basePath}/:id`,
   [
     check("id", "Incorrect ID").isMongoId(),
     validateFields,
@@ -39,6 +42,15 @@ router.put(
   ],
   updateUser,
 );
-router.delete("/users/:id", [check("id").custom(userExists), validateFields], deleteUser);
+router.delete(
+  `${basePath}/:id`,
+  [
+    validateJwt,
+    hasRole(RoleEnum.ADMIN, RoleEnum.USER),
+    check("id").custom(userExists),
+    validateFields,
+  ],
+  deleteUser,
+);
 
 export default router;
