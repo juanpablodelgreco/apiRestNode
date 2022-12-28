@@ -17,6 +17,7 @@ const router = Router();
 const basePath = "/users";
 
 router.get(`${basePath}`, getUsers);
+
 router.post(
   `${basePath}`,
   [
@@ -32,6 +33,7 @@ router.post(
   ],
   createUser,
 );
+
 router.put(
   `${basePath}/:id`,
   [
@@ -42,6 +44,7 @@ router.put(
   ],
   updateUser,
 );
+
 router.delete(
   `${basePath}/:id`,
   [
